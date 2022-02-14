@@ -5,12 +5,14 @@ from __future__ import print_function
 import os, sys, time, json
 import numpy as np
 import cantera as ct
+import matplotlib
 import matplotlib.pyplot as plt
 from scipy.stats import norm
 from copy import deepcopy
 from itertools import accumulate
 from scipy.interpolate import interp1d
 
+matplotlib.rc('font', **{'size':13})
 np.random.seed(0x7777777)
 
 color_arr = ('k','r','b','m','y','g','k','r','b','m','y')

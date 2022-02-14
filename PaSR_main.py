@@ -149,7 +149,7 @@ def run_simulation(mech, case, T0, P, eq_ratio, fuel, oxidizer, mix_model="IEM",
         # ======
         # mixing
         mix_substep(particles, dt, tau_mix,
-                    fuel, oxidizer, model=mix_model, sigma_k=None)
+                    fuel, oxidizer, model=mix_model, sigma_k=sigma_k)
 
         t2 = time.time()
 
@@ -180,7 +180,7 @@ def run_simulation(mech, case, T0, P, eq_ratio, fuel, oxidizer, mix_model="IEM",
             plt.cla()
             T_arr = [p.gas.T for p in particles]
             Z_arr = [p.gas.mixture_fraction(fuel, oxidizer) for p in particles]
-            plt.plot(Z_arr, T_arr, 'k.', ms=0.6, alpha=0.6)
+            plt.plot(Z_arr, T_arr, 'k.', ms=0.8, alpha=0.8)
             plt.xlim([0,1])
             plt.ylim([0, 2500])
             plt.xlabel("Z")
@@ -236,7 +236,24 @@ if __name__ == "__main__":
     particle_data = np.load(args.output)
     Ntimes = particle_data.shape[0]
     Nparticles = particle_data.shape[1]
+
+    # get Zst
+    gas.TP = inputs['temperature'], inputs['pressure']*ct.one_atm
+    gas.set_equivalence_ratio(1.0, inputs['fuel'], inputs['oxidizer'])
+    Zst = gas.mixture_fraction(inputs['fuel'], inputs['oxidizer'])
     
+    # get equilibrium line
+    mfs = np.linspace(0,1,100)
+    Teq = []
+    for Z in mfs:
+        gas.TP = inputs['temperature'], inputs['pressure']*ct.one_atm
+        if Z!=1:
+            gas.set_equivalence_ratio(Z/(1-Z)*(1-Zst)/Zst, inputs['fuel'], inputs['oxidizer'])
+        else:
+            gas.X = inputs['fuel']
+        gas.equilibrate('HP')
+        Teq.append(deepcopy(gas.T))
+
     # figure 1: temperature
     plt.figure(1, figsize=(5,4))
     t_arr = particle_data[:,0,0]
@@ -250,35 +267,26 @@ if __name__ == "__main__":
 
     # figure 2: Z-T plot
     plt.figure(2, figsize=(5,4))
-    j = Ntimes-1
-    mf = np.array([get_mixture_fraction(gas, inputs['fuel'], inputs['oxidizer'], 
-            particle_data[j,i,3:]) for i in range(Nparticles)])
-    Tp = particle_data[j,:,1]
-    
-    gas.TP = inputs['temperature'], inputs['pressure']*ct.one_atm
-    gas.set_equivalence_ratio(1.0, inputs['fuel'], inputs['oxidizer'])
-    Zst = gas.mixture_fraction(inputs['fuel'], inputs['oxidizer'])
-
-    mfs = np.linspace(0,1,100)
-    Teq = []
-    for Z in mfs:
-        gas.TP = inputs['temperature'], inputs['pressure']*ct.one_atm
-        if Z!=1:
-            gas.set_equivalence_ratio(Z/(1-Z)*(1-Zst)/Zst, inputs['fuel'], inputs['oxidizer'])
-        else:
-            gas.X = inputs['fuel']
-        gas.equilibrate('HP')
-        Teq.append(deepcopy(gas.T))
-    plt.plot(mf, Tp, 'k.', ms=0.6, alpha=0.6)
-    plt.plot(mfs, Teq, 'r-')
+    plt.plot(mfs, Teq, 'r-', lw=0.5)
+    mf_arr = []
+    for j in range(Ntimes-1, Ntimes, 1):
+        mf = np.array([get_mixture_fraction(gas, inputs['fuel'], inputs['oxidizer'], 
+                particle_data[j,i,3:]) for i in range(Nparticles)])
+        Tp = particle_data[j,:,1]
+        mf_arr.append(mf)
+        plt.plot(mf, Tp, 'k.', ms=0.8, alpha=0.8)
     plt.xlim([0,1])
     plt.ylim([0,2500])
-    plt.xlabel("Z")
-    plt.ylabel("T")
+    plt.title(casename)
+    plt.xlabel("Mixture Fraction")
+    plt.ylabel("Temperature [K]")
+    plt.subplots_adjust(left=0.16, right=0.95, top=0.9, bottom=0.15)
+    plt.savefig("figs/"+casename+"_Z-T.png")
 
     # figure 3: Z PDF
+    Z = np.array(mf_arr).flatten()
     plt.figure(3, figsize=(5,4))
-    PDF,BIN = np.histogram(mf, bins=30, density=True)
+    PDF,BIN = np.histogram(Z, bins=20, density=True)
     BIN = (BIN[1:] + BIN[:-1])/2
     plt.plot(BIN, PDF)
     plt.xlim([0,1])
