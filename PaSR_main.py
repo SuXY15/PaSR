@@ -41,6 +41,10 @@ def run_simulation(mech, case, T0, P, eq_ratio, fuel, oxidizer, mix_model="IEM",
     """
     # Time step control
     dt = 0.1 * min(tau_res, tau_mix)
+
+    if mix_model=="EMST" or mix_model=="EMST1D": # EMST need smaller timestep
+        dt /= 5
+
     time_end = num_res * tau_res
     num_steps = int(time_end / dt + 10)
 
@@ -133,7 +137,7 @@ def run_simulation(mech, case, T0, P, eq_ratio, fuel, oxidizer, mix_model="IEM",
         else:
             dt = dt
 
-        # ======
+        # ==========
         # flow in/out
         part_out += Np * dt / tau_res
         npart_out = int(round(part_out))
@@ -146,20 +150,20 @@ def run_simulation(mech, case, T0, P, eq_ratio, fuel, oxidizer, mix_model="IEM",
 
         t1 = time.time()
 
-        # ======
+        # ==========
         # mixing
         mix_substep(particles, dt, tau_mix,
                     fuel, oxidizer, model=mix_model, sigma_k=sigma_k)
 
         t2 = time.time()
 
-        # ======
+        # ==========
         # reacting
         reaction_substep(particles, dt, mech)
 
         t3 = time.time()
 
-        # ======
+        # ==========
         # Save states
         t += dt
         i_step += 1
@@ -169,10 +173,10 @@ def run_simulation(mech, case, T0, P, eq_ratio, fuel, oxidizer, mix_model="IEM",
         save_data(i_step, t, particles, particle_data)
 
         print('t/tres = {:4.2f},  <T> = {:6.1f}'.format(t/tau_res, temp_mean[i_step]))
-        # print('{:.1e}, {:.1e}, {:.1e}'.format(
-        #        t1-t0,  t2-t1,  t3-t2)
+        # print('cost  of flow {:.1e}, mix {:.1e}, react {:.1e}'.format(
+        #                       t1-t0,      t2-t1,        t3-t2)
 
-        # ======
+        # ==========
         # plot
         if doplot:
             plt.ion()
@@ -269,12 +273,12 @@ if __name__ == "__main__":
     plt.figure(2, figsize=(5,4))
     plt.plot(mfs, Teq, 'r-', lw=0.5)
     mf_arr = []
-    for j in range(Ntimes-1, Ntimes, 1):
+    for j in range(Ntimes-100, Ntimes, 5):
         mf = np.array([get_mixture_fraction(gas, inputs['fuel'], inputs['oxidizer'], 
                 particle_data[j,i,3:]) for i in range(Nparticles)])
         Tp = particle_data[j,:,1]
         mf_arr.append(mf)
-        plt.plot(mf, Tp, 'k.', ms=0.8, alpha=0.8)
+        plt.plot(mf, Tp, 'k.', ms=0.8, alpha=0.2)
     plt.xlim([0,1])
     plt.ylim([0,2500])
     plt.title(casename)
@@ -292,5 +296,17 @@ if __name__ == "__main__":
     plt.xlim([0,1])
     plt.xlabel("Z")
     plt.ylabel("PDF")
+
+    # plt.figure(4, figsize=(5,4))
+    # for j in range(Ntimes-1, Ntimes, 1):
+    #     mf = np.array([get_mixture_fraction(gas, inputs['fuel'], inputs['oxidizer'], 
+    #             particle_data[j,i,3:]) for i in range(Nparticles)])
+    #     Tp = particle_data[j,:,1+gas.species_index("OH")]
+    #     plt.plot(mf, Tp, 'k.', ms=0.8, alpha=0.8)
+    # plt.xlim([0,1])
+    # plt.title(casename)
+    # plt.xlabel("Mixture Fraction")
+    # plt.ylabel("Y_{OH}")
+    # plt.subplots_adjust(left=0.16, right=0.95, top=0.9, bottom=0.15)
 
     plt.show()

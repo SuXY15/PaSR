@@ -181,7 +181,8 @@ def mix_substep(particles, dt, tau_mix, fuel, oxidizer, model="IEM", sigma_k=Non
             BB = 2*np.mean(dphi * phis, axis=0)
             CC = 1./tau_mix * varPhi
             dt = min(dt, np.min(1. * BB**2 / (4*AA*CC)))
-            alphaPhi = ( -BB + np.sqrt(abs(BB*BB-4*AA*CC*dt)) ) / (2*AA*dt)
+            alphaPhi = -BB / (2*AA*dt)
+            #alphaPhi = ( -BB - np.sqrt(abs(BB*BB-4*AA*CC*dt)) ) / (2*AA*dt)
             alphaPhi = np.min(alphaPhi)
             
             dt = dt_in if dt_in <= dt else dt
@@ -282,7 +283,8 @@ def mix_substep(particles, dt, tau_mix, fuel, oxidizer, model="IEM", sigma_k=Non
             BB = 2*np.mean(dphi * phis, axis=0)
             CC = 1./tau_mix * varPhi
             dt = min(dt, np.min(1. * BB**2 / (4*AA*CC)))
-            alphaPhi = ( -BB + np.sqrt(abs(BB*BB-4*AA*CC*dt)) ) / (2*AA*dt)
+            alphaPhi =  -BB / (2*AA*dt)
+            # alphaPhi = ( -BB - np.sqrt(abs(BB*BB-4*AA*CC*dt)) ) / (2*AA*dt)
             alphaPhi = np.min(alphaPhi)
 
             dt = dt_in if dt_in <= dt else dt
@@ -300,7 +302,7 @@ def mix_substep(particles, dt, tau_mix, fuel, oxidizer, model="IEM", sigma_k=Non
 
             dt_in -= dt
 
-            # print("[DEBUG] EMST looping dt_in = %6.1e, dt = %6.1e, alpha = %6.1e"%(dt_in, dt, alphaPhi))
+            print("[DEBUG] EMST looping dt_in = %6.1e, dt = %6.1e, alpha = %6.1e"%(dt_in, dt, alphaPhi))
             # sys.exit(0)
 
     elif model=="KerM":
