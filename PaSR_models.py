@@ -532,5 +532,7 @@ def parse_input_file(input_file):
         pars['mixing model'] = "IEM"
     if not pars.get('number of residence times', None):
         pars['number of residence times'] = 5
+    if not pars.get('pilot ratio', None):
+        pars['pilot ratio'] = 0.0
 
     return pars

@@ -6,7 +6,7 @@ from PaSR_models import *
 # PaSR simulation, particle weights are not used
 def run_simulation(mech, case, T0, P, eq_ratio, fuel, oxidizer, mix_model="IEM",
                    Np=100,  tau_res=(10./1000.), tau_mix=(1./1000.), num_res=10,
-                   sigma_k=None,  doplot=False):
+                   pilot=0.0, sigma_k=None,  doplot=False):
     """Perform partially stirred reactor (PaSR) simulation.
     Parameters
     ----------
@@ -65,7 +65,7 @@ def run_simulation(mech, case, T0, P, eq_ratio, fuel, oxidizer, mix_model="IEM",
         flow_rates = dict(fuel_oxid = 0.95, pilot = 0.05)
     elif case.lower() == 'non-premixed':
         # Non-premixed
-        flow_rates = dict(fuel = Zeq, oxid = 1-Zeq, pilot = 0.0)
+        flow_rates = dict(fuel = (1-pilot)*Zeq, oxid = (1-pilot)*(1-Zeq), pilot = pilot)
     else:
         print('Error: case needs to be either premixed or non-premixed.')
         sys.exit(1)
@@ -230,7 +230,8 @@ if __name__ == "__main__":
             inputs['equivalence ratio'], inputs['fuel'], inputs['oxidizer'],
             inputs['mixing model'], inputs['number of particles'],
             inputs['residence time'], inputs['mixing time'], 
-            inputs['number of residence times'], inputs['sigma_k'], args.doplot)
+            inputs['number of residence times'], inputs['pilot ratio'],
+            inputs['sigma_k'], args.doplot)
         np.save(args.output, particle_data)
 
     # =================================
@@ -298,6 +299,7 @@ if __name__ == "__main__":
     plt.xlabel("Z")
     plt.ylabel("PDF")
 
+    # figure 4: Y_OH plot
     # plt.figure(4, figsize=(5,4))
     # for j in range(Ntimes-1, Ntimes, 1):
     #     mf = np.array([get_mixture_fraction(gas, inputs['fuel'], inputs['oxidizer'], 

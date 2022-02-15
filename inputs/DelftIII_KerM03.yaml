@@ -1,0 +1,20 @@
+# Approximation of Delft III flame at x=150mm, x/D
+# test has not been finished yet
+case: non-premixed
+mech: "mech/CH4_DRM22.yaml"
+mixing model: "KerM"
+sigma_k: 0.3
+number of particles: 1000
+temperature: 300.0
+pressure: 1.0
+equivalence ratio: 2
+residence time: 20.e-2
+mixing time: 10.e-2
+number of residence times: 5
+fuel:
+  CH4:  0.85
+  N2:   0.15
+oxidizer:
+  O2: 0.21
+  N2: 0.79
+pilot ratio: 0.1
