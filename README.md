@@ -30,7 +30,7 @@ networkx
 
 The mixing happens on the edges of EMST tree, with:
 
-<img src="https://latex.codecogs.com/svg.image?\frac{d\phi_i}{dt}=-\alpha\frac{1}{w_i}\sum_v^{N_T-1}B_v\{(\phi_i-\phi_{n_v})\delta_{im_v}+(\phi_i-\phi_{m_v})\delta_{in_v}\}"/>
+<center><img src="https://latex.codecogs.com/svg.image?\frac{d\phi_i}{dt}=-\alpha\frac{1}{w_i}\sum_v^{N_T-1}B_v\{(\phi_i-\phi_{n_v})\delta_{im_v}+(\phi_i-\phi_{m_v})\delta_{in_v}\}"/></center>
 
 The parameter <img src="https://latex.codecogs.com/svg.image?\alpha"/> controls the variance decay rate. Denoting<img src="https://latex.codecogs.com/svg.image?d\phi_i=\frac{1}{\alpha}\frac{d\phi_i}{dt}" style="vertical-align:middle"/>, then from time <img src="https://latex.codecogs.com/svg.image?t"/> to <img src="https://latex.codecogs.com/svg.image?t+\delta&space;t"/>, one has:
 
@@ -53,11 +53,9 @@ Once <img src="https://latex.codecogs.com/svg.image?\delta&space;t"/> is selecte
 <img src="https://latex.codecogs.com/svg.image?\alpha=\frac{-B&plus;\sqrt{B^2-4AC}}{2A}" title="\alpha=\frac{-B+\sqrt{B^2-4AC}}{2A}" />
 
 For multiple scalars, single <img src="https://latex.codecogs.com/svg.image?\alpha"/> could not lead to target variance decay for all scalars. So a root finding technique is employed to estimate best <img src="https://latex.codecogs.com/svg.image?\alpha"/>. 
-$$
-\begin{align*}
-\alpha_{new} = \alpha_{old} \left(1-e^{-\Omega_\phi\delta t}\right)/\overline{\left(1-\frac{Var(\phi+\alpha_{old} d\phi\delta t)}{Var(\phi)}\right)}
-\end{align*}
-$$
+
+<img src="https://latex.codecogs.com/svg.image?\begin{align*}\alpha_{new}=\alpha_{old}\left(1-e^{-\Omega_\phi\delta&space;t}\right)/\overline{\left(1-\frac{Var(\phi&plus;\alpha_{old}&space;d\phi\delta&space;t)}{Var(\phi)}\right)}\end{align*}" title="\begin{align*}\alpha_{new}=\alpha_{old}\left(1-e^{-\Omega_\phi\delta t}\right)/\overline{\left(1-\frac{Var(\phi+\alpha_{old} d\phi\delta t)}{Var(\phi)}\right)}\end{align*}" />
+
 Typically, the root finding process converges in 2-3 loops.
 
 
