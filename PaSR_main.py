@@ -273,12 +273,13 @@ if __name__ == "__main__":
     plt.figure(2, figsize=(5,4))
     plt.plot(mfs, Teq, 'r-', lw=0.5)
     mf_arr = []
-    for j in range(Ntimes-100, Ntimes, 5):
+    # for j in range(Ntimes-100, Ntimes, 5): # for EMST
+    for j in range(Ntimes-1, Ntimes, 1): # for others
         mf = np.array([get_mixture_fraction(gas, inputs['fuel'], inputs['oxidizer'], 
                 particle_data[j,i,3:]) for i in range(Nparticles)])
         Tp = particle_data[j,:,1]
         mf_arr.append(mf)
-        plt.plot(mf, Tp, 'k.', ms=0.8, alpha=0.2)
+        plt.plot(mf, Tp, 'k.', ms=0.8, alpha=0.8) # alpha = 0.4 for EMST
     plt.xlim([0,1])
     plt.ylim([0,2500])
     plt.title(casename)
